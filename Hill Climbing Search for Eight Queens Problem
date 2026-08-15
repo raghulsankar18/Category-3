@@ -1,0 +1,63 @@
+# ============================================================
+# 2. Hill Climbing Search for Eight Queens Problem
+# ============================================================
+import random
+
+N = 8
+
+def random_state():
+    return [random.randint(0, N - 1) for _ in range(N)]
+
+def calculate_conflicts(state):
+    conflicts = 0
+    for i in range(N):
+        for j in range(i + 1, N):
+            if state[i] == state[j] or abs(state[i] - state[j]) == abs(i - j):
+                conflicts += 1
+    return conflicts
+
+def get_best_neighbor(state):
+    best_state = state
+    best_conflicts = calculate_conflicts(state)
+    for col in range(N):
+        for row in range(N):
+            if row != state[col]:
+                new_state = state[:]
+                new_state[col] = row
+                new_conflicts = calculate_conflicts(new_state)
+                if new_conflicts < best_conflicts:
+                    best_state = new_state
+                    best_conflicts = new_conflicts
+    return best_state, best_conflicts
+
+def hill_climbing():
+    current = random_state()
+    current_conflicts = calculate_conflicts(current)
+
+    while True:
+        neighbor, neighbor_conflicts = get_best_neighbor(current)
+        if neighbor_conflicts >= current_conflicts:
+            break
+        current, current_conflicts = neighbor, neighbor_conflicts
+
+    return current, current_conflicts
+
+def print_board(state):
+    for row in range(N):
+        line = ""
+        for col in range(N):
+            line += "Q " if state[col] == row else ". "
+        print(line)
+
+# ---- Run with restarts until solved ----
+solution = None
+attempts = 0
+while solution is None:
+    attempts += 1
+    state, conflicts = hill_climbing()
+    if conflicts == 0:
+        solution = state
+
+print("Solved in", attempts, "attempt(s)")
+print("Solution:", solution)
+print_board(solution)
