@@ -1,0 +1,53 @@
+# ============================================================
+# 3. Simulated Annealing for Job Scheduling Problem
+# ============================================================
+import random
+import math
+
+NUM_JOBS = 10
+NUM_MACHINES = 3
+JOB_TIMES = [random.randint(2, 15) for _ in range(NUM_JOBS)]
+
+def random_schedule():
+    return [random.randint(0, NUM_MACHINES - 1) for _ in range(NUM_JOBS)]
+
+def get_makespan(schedule):
+    loads = [0] * NUM_MACHINES
+    for job in range(NUM_JOBS):
+        machine = schedule[job]
+        loads[machine] += JOB_TIMES[job]
+    return max(loads)
+
+def get_neighbor(schedule):
+    new_schedule = schedule[:]
+    job = random.randint(0, NUM_JOBS - 1)
+    new_schedule[job] = random.randint(0, NUM_MACHINES - 1)
+    return new_schedule
+
+def simulated_annealing():
+    current = random_schedule()
+    current_cost = get_makespan(current)
+    best, best_cost = current, current_cost
+
+    temperature = 100
+    cooling_rate = 0.95
+
+    while temperature > 1:
+        neighbor = get_neighbor(current)
+        neighbor_cost = get_makespan(neighbor)
+        delta = neighbor_cost - current_cost
+
+        if delta < 0 or random.random() < math.exp(-delta / temperature):
+            current, current_cost = neighbor, neighbor_cost
+            if current_cost < best_cost:
+                best, best_cost = current, current_cost
+
+        temperature *= cooling_rate
+
+    return best, best_cost
+
+# ---- Run ----
+print("Job Times:", JOB_TIMES)
+best_schedule, best_makespan = simulated_annealing()
+print("Best Schedule (job -> machine):", best_schedule)
+print("Best Makespan:", best_makespan)
